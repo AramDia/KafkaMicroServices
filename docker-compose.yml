@@ -1,0 +1,31 @@
+version: '0.1'
+services:
+  config-service:
+    build: ./config-service
+    container_name: config-service
+    ports:
+      - '8888:8888'
+    expose:
+      - '8888'
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      retries: 4
+      timeout: 5s # Good practice to add a timeout for healthchecks
+      start_period: 30s # Give the app some time to start before healthchecks begin
+  discovery-service:
+    build: ./discovery-service
+    container_name: discovery-service
+    ports:
+      - '8761:8761'
+    expose:
+      - '8761'
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      retries: 4
+      timeout: 5s # Good practice to add a timeout for healthchecks
+      start_period: 30s # Give the app some time to start before healthchecks begin
+    depends_on:
+      config-service:
+        condition: service_healthy
